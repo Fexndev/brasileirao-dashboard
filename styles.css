@@ -158,7 +158,7 @@ body {
 .header {
     background: linear-gradient(135deg, var(--bg-header) 0%, var(--bg-header-end) 100%);
     border-bottom: 1px solid rgba(46,160,67,0.2);
-    padding: 20px 32px 0;
+    padding: 20px 0 0;
     position: relative;
     overflow: hidden;
 }
@@ -170,10 +170,10 @@ body {
 .header-content {
     max-width: 1440px;
     margin: 0 auto;
+    padding: 0 32px 18px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 18px;
     position: relative;
     z-index: 1;
 }
@@ -308,7 +308,7 @@ body {
 .header-timestamp {
     max-width: 1440px;
     margin: 0 auto;
-    padding: 7px 0;
+    padding: 7px 32px;
     text-align: right;
     font-size: 10px;
     color: rgba(255,255,255,0.35);
@@ -1701,7 +1701,9 @@ body {
 }
 
 @media (max-width: 768px) {
-    .header { padding: 16px 16px 0; }
+    .header { padding: 16px 0 0; }
+    .header-content { padding: 0 16px 14px; }
+    .header-timestamp { padding: 7px 16px; }
 
     .header-content { flex-direction: column; align-items: flex-start; gap: 12px; }
     .header-controls { width: 100%; flex-wrap: wrap; }
