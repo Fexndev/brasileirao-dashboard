@@ -61,8 +61,6 @@ let appState = {
     activeTab:      'tabela',
     chartInstances: [],
     season:         null,
-    turno:          'todos',
-    mandoCampo:     'todos',
     mercadoSort:    'value',    // field to sort by: 'name','team','position','age','value'
     mercadoSortDir: 'desc',     // 'asc' or 'desc'
 };
@@ -307,11 +305,6 @@ function renderHeader(latestRound, selectedTeam, selectedRound, lastUpdated) {
                     <select class="select-team" id="teamFilter">
                         <option value="Todos os times">Todos os times</option>
                     </select>
-                    <select class="select-turno" id="turnoFilter">
-                        <option value="todos" ${appState.turno === 'todos' ? 'selected' : ''}>Todos os turnos</option>
-                        <option value="primeiro" ${appState.turno === 'primeiro' ? 'selected' : ''}>1\u00BA Turno (R1\u201319)</option>
-                        <option value="segundo" ${appState.turno === 'segundo' ? 'selected' : ''}>2\u00BA Turno (R20\u201338)</option>
-                    </select>
                 </div>
             </div>
             <div class="header-timestamp">Atualizada em ${timestamp}</div>
@@ -330,6 +323,59 @@ function renderKPIs(standings, allMatches) {
         </div>`;
     }
 
+    const kpi = (label, value, detail = '', color = '') =>
+        `<div class="kpi-card">
+            <div class="kpi-label">${label}</div>
+            <div class="kpi-value small">${value}</div>
+            ${detail ? `<div class="kpi-detail" style="color:${color || 'var(--text-secondary)'}">${detail}</div>` : ''}
+        </div>`;
+
+    const selectedTeam = appState.selectedTeam;
+
+    // ── KPIs por time selecionado ────────────────────────────────
+    if (selectedTeam !== 'Todos os times') {
+        const t = standings.find(s => s.name === selectedTeam);
+        if (!t) return '';
+
+        const maxPts = t.played * 3 || 1;
+        const aprov = Math.round(t.points / maxPts * 100);
+        const aprovColor = aprov >= 60 ? 'var(--accent-green)' : aprov >= 40 ? 'var(--accent-yellow)' : 'var(--accent-red)';
+        const sg = t.goalsFor - t.goalsAgainst;
+        const sgStr = sg > 0 ? `+${sg}` : String(sg);
+        const sgColor = sg > 0 ? 'var(--accent-green)' : sg < 0 ? 'var(--accent-red)' : 'var(--text-secondary)';
+
+        // Sequência atual
+        const sorted = [...t.matches].sort((a, b) => new Date(b.date) - new Date(a.date));
+        let streakType = '', streakCount = 0;
+        for (const m of sorted) {
+            const res = m.score > m.conceded ? 'V' : m.score === m.conceded ? 'E' : 'D';
+            if (!streakType) { streakType = res; streakCount = 1; }
+            else if (res === streakType) streakCount++;
+            else break;
+        }
+        const streakLabel = streakCount > 0 ? `${streakCount}${streakType}` : '-';
+        const streakColor = streakType === 'V' ? 'var(--accent-green)' : streakType === 'D' ? 'var(--accent-red)' : 'var(--accent-yellow)';
+
+        const homePts = t.homeWins * 3 + t.homeDraws;
+        const awayPts = t.awayWins * 3 + t.awayDraws;
+
+        return `
+            <div class="kpi-grid">
+                ${kpi('Pontos', t.points, `${t.played} jogos \u2022 ${t.wins}V ${t.draws}E ${t.losses}D`)}
+                ${kpi('Aproveitamento', `${aprov}%`, `${t.points} de ${t.played * 3} poss\u00EDveis`, aprovColor)}
+                ${kpi('Posi\u00E7\u00E3o', `${t.position}\u00BA`, `de 20 times`)}
+                ${kpi('Sequ\u00EAncia Atual', streakLabel, `\u00FAltimos resultados`, streakColor)}
+            </div>
+            <div class="kpi-grid" style="margin-top:0">
+                ${kpi('Gols', `${t.goalsFor} / ${t.goalsAgainst}`, 'pr\u00F3 / contra')}
+                ${kpi('Saldo de Gols', sgStr, `${t.goalsFor} GP \u2022 ${t.goalsAgainst} GC`, sgColor)}
+                ${kpi('Casa', `${homePts} pts`, `${t.homeWins}V ${t.homeDraws}E ${t.homeLosses}D`, 'var(--accent-blue)')}
+                ${kpi('Fora', `${awayPts} pts`, `${t.awayWins}V ${t.awayDraws}E ${t.awayLosses}D`, 'var(--accent-blue)')}
+            </div>
+        `;
+    }
+
+    // ── KPIs globais da liga ─────────────────────────────────────
     const finished   = allMatches.filter(m => m.intHomeScore !== null && m.intHomeScore !== undefined && m.intHomeScore !== '').length;
     const totalGoals = allMatches.reduce((s, m) =>
         s + (parseInt(m.intHomeScore) || 0) + (parseInt(m.intAwayScore) || 0), 0);
@@ -338,9 +384,7 @@ function renderKPIs(standings, allMatches) {
     const leader      = standings[0];
     const bestAttack  = standings.reduce((max, t) => t.goalsFor > max.goalsFor ? t : max);
     const bestDefense = standings.reduce((min, t) => t.goalsAgainst < min.goalsAgainst ? t : min);
-    const mostWins    = standings.reduce((max, t) => t.wins > max.wins ? t : max);
 
-    // Maior sequência de vitórias atual
     let bestStreak = { team: '', streak: 0 };
     standings.forEach(team => {
         const sorted = [...team.matches].sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -349,19 +393,10 @@ function renderKPIs(standings, allMatches) {
         if (streak > bestStreak.streak) bestStreak = { team: team.name, streak };
     });
 
-    // Times com mais empates e mais derrotas
-    const mostDraws  = standings.reduce((max, t) => t.draws > max.draws ? t : max);
     const topHomeTeam = standings.reduce((max, t) =>
         (t.homeWins * 3 + t.homeDraws) > (max.homeWins * 3 + max.homeDraws) ? t : max);
     const topAwayTeam = standings.reduce((max, t) =>
         (t.awayWins * 3 + t.awayDraws) > (max.awayWins * 3 + max.awayDraws) ? t : max);
-
-    const kpi = (label, value, detail = '', color = '') =>
-        `<div class="kpi-card">
-            <div class="kpi-label">${label}</div>
-            <div class="kpi-value small">${value}</div>
-            ${detail ? `<div class="kpi-detail" style="color:${color || 'var(--text-secondary)'}">${detail}</div>` : ''}
-        </div>`;
 
     return `
         <div class="kpi-grid">
@@ -776,19 +811,34 @@ function renderMarketValues() {
     const teams = [...new Set(allPlayers.map(p => p.team))].sort();
     const positions = [...new Set(players.map(p => p.position))].sort();
 
-    // KPIs de mercado (sempre globais)
+    // KPIs de mercado — dinâmicos com base no filtro
     const mostValuable = sorted[0];
-    const teamValues = {};
-    allPlayers.forEach(p => { teamValues[p.team] = (teamValues[p.team] || 0) + p.value; });
-    const teamValArr = Object.entries(teamValues).sort((a, b) => b[1] - a[1]);
-    const totalValue = allPlayers.reduce((s, p) => s + p.value, 0);
+    const totalValue = players.reduce((s, p) => s + p.value, 0);
+    const avgAge = players.length > 0 ? (players.reduce((s, p) => s + p.age, 0) / players.length).toFixed(1).replace('.', ',') : '-';
 
-    let html = `<div class="kpi-grid">
-        <div class="kpi-card"><div class="kpi-label">Jogador Mais Valioso</div><div class="kpi-value small">${mostValuable.name}</div><div class="kpi-detail" style="color:var(--accent-green)">${formatMarketValue(mostValuable.value)} \u2022 ${mostValuable.team}</div></div>
-        <div class="kpi-card"><div class="kpi-label">Elenco Mais Valioso</div><div class="kpi-value small">${teamValArr[0][0]}</div><div class="kpi-detail" style="color:var(--accent-green)">${formatMarketValue(teamValArr[0][1])}</div></div>
-        <div class="kpi-card"><div class="kpi-label">Valor Total da Liga</div><div class="kpi-value small">${formatMarketValue(totalValue)}</div></div>
-        <div class="kpi-card"><div class="kpi-label">Jogadores Cadastrados</div><div class="kpi-value">${players.length}</div></div>
-    </div>`;
+    let kpiHtml;
+    if (headerTeam !== 'Todos os times') {
+        // KPIs do time selecionado
+        kpiHtml = `<div class="kpi-grid">
+            <div class="kpi-card"><div class="kpi-label">Jogador Mais Valioso</div><div class="kpi-value small">${mostValuable.name}</div><div class="kpi-detail" style="color:var(--accent-green)">${formatMarketValue(mostValuable.value)}</div></div>
+            <div class="kpi-card"><div class="kpi-label">Valor do Elenco</div><div class="kpi-value small">${formatMarketValue(totalValue)}</div><div class="kpi-detail">${formatMarketValueBRL(totalValue)}</div></div>
+            <div class="kpi-card"><div class="kpi-label">M\u00E9dia de Idade</div><div class="kpi-value">${avgAge}</div><div class="kpi-detail">anos</div></div>
+            <div class="kpi-card"><div class="kpi-label">Jogadores</div><div class="kpi-value">${players.length}</div></div>
+        </div>`;
+    } else {
+        // KPIs globais da liga
+        const teamValues = {};
+        allPlayers.forEach(p => { teamValues[p.team] = (teamValues[p.team] || 0) + p.value; });
+        const teamValArr = Object.entries(teamValues).sort((a, b) => b[1] - a[1]);
+        const totalLeagueValue = allPlayers.reduce((s, p) => s + p.value, 0);
+        kpiHtml = `<div class="kpi-grid">
+            <div class="kpi-card"><div class="kpi-label">Jogador Mais Valioso</div><div class="kpi-value small">${mostValuable.name}</div><div class="kpi-detail" style="color:var(--accent-green)">${formatMarketValue(mostValuable.value)} \u2022 ${mostValuable.team}</div></div>
+            <div class="kpi-card"><div class="kpi-label">Elenco Mais Valioso</div><div class="kpi-value small">${teamValArr[0][0]}</div><div class="kpi-detail" style="color:var(--accent-green)">${formatMarketValue(teamValArr[0][1])}</div></div>
+            <div class="kpi-card"><div class="kpi-label">Valor Total da Liga</div><div class="kpi-value small">${formatMarketValue(totalLeagueValue)}</div></div>
+            <div class="kpi-card"><div class="kpi-label">Jogadores Cadastrados</div><div class="kpi-value">${allPlayers.length}</div></div>
+        </div>`;
+    }
+    let html = kpiHtml;
 
     // Filtros
     html += `<div class="market-controls">
@@ -1077,28 +1127,164 @@ function renderProximosJogos(allMatches, selectedTeam) {
 
     if (proximos.length === 0) return '';
 
-    let html = '<h3 class="section-title">Pr\u00F3ximos Jogos</h3><div class="proximos-jogos">';
+    let html = '<h3 class="section-title">Pr\u00F3ximos Jogos</h3><div class="fixture-strip">';
     proximos.forEach(m => {
         const rodada = m.intRound ? `R${m.intRound}` : '';
-        const data = formatDate(m.dateEvent);
-        html += `<div class="proximo-jogo-card">
-            <div class="proximo-rodada">${rodada}</div>
-            <div class="proximo-times">
-                <div class="proximo-time">
-                    <img src="${m.strHomeTeamBadge || ''}" alt="" class="team-logo" onerror="this.style.display='none'">
+        const data = formatDateShort(m.dateEvent);
+        html += `<div class="fixture-card">
+            <div class="fixture-header">${rodada} \u2022 ${data}</div>
+            <div class="fixture-match">
+                <div class="fixture-team fixture-team--home">
                     <span>${m.strHomeTeam}</span>
+                    <img src="${m.strHomeTeamBadge || ''}" alt="" class="team-logo" onerror="this.style.display='none'">
                 </div>
-                <span class="proximo-vs">\u00D7</span>
-                <div class="proximo-time">
+                <span class="fixture-vs">\u00D7</span>
+                <div class="fixture-team fixture-team--away">
                     <img src="${m.strAwayTeamBadge || ''}" alt="" class="team-logo" onerror="this.style.display='none'">
                     <span>${m.strAwayTeam}</span>
                 </div>
             </div>
-            <div class="proximo-data">${data}</div>
         </div>`;
     });
     html += '</div>';
     return html;
+}
+
+
+/**
+ * Renderiza resultados de uma rodada específica.
+ */
+function renderResultadosRodada(allMatches, latestRound) {
+    const played = allMatches.filter(m =>
+        m.intHomeScore !== null && m.intHomeScore !== undefined && m.intHomeScore !== ''
+    );
+    if (played.length === 0) return '';
+
+    const rounds = [...new Set(played.map(m => parseInt(m.intRound)))].sort((a, b) => a - b);
+    const currentRound = latestRound || rounds[rounds.length - 1];
+
+    let options = rounds.map(r =>
+        `<option value="${r}" ${r === currentRound ? 'selected' : ''}>Rodada ${r}</option>`
+    ).join('');
+
+    const roundMatches = allMatches.filter(m => parseInt(m.intRound) === currentRound);
+
+    let matchesHtml = '';
+    roundMatches.forEach(m => {
+        const hs = m.intHomeScore !== null && m.intHomeScore !== '' ? parseInt(m.intHomeScore) : null;
+        const as_ = m.intAwayScore !== null && m.intAwayScore !== '' ? parseInt(m.intAwayScore) : null;
+        const played_ = hs !== null;
+        const scoreHtml = played_
+            ? `<span class="rodada-score">${hs} \u2013 ${as_}</span>`
+            : `<span class="rodada-date">${formatDateShort(m.dateEvent)}</span>`;
+
+        matchesHtml += `<div class="rodada-match">
+            <div class="rodada-team rodada-team--home">
+                <span>${m.strHomeTeam}</span>
+                <img src="${m.strHomeTeamBadge || ''}" class="team-logo" onerror="this.style.display='none'">
+            </div>
+            ${scoreHtml}
+            <div class="rodada-team rodada-team--away">
+                <img src="${m.strAwayTeamBadge || ''}" class="team-logo" onerror="this.style.display='none'">
+                <span>${m.strAwayTeam}</span>
+            </div>
+        </div>`;
+    });
+
+    return `<h3 class="section-title" style="display:flex;align-items:center;gap:12px">
+        Resultados
+        <select class="select-team" id="roundSelector" style="font-size:12px;padding:4px 8px">${options}</select>
+    </h3>
+    <div class="rodada-grid">${matchesHtml}</div>`;
+}
+
+/**
+ * Renderiza ranking de aproveitamento com barras visuais.
+ */
+function renderRankingAproveitamento(standings) {
+    if (!standings || standings.length === 0) return '';
+
+    const sorted = [...standings].sort((a, b) => {
+        const pa = a.played > 0 ? a.points / (a.played * 3) : 0;
+        const pb = b.played > 0 ? b.points / (b.played * 3) : 0;
+        return pb - pa;
+    });
+
+    let rows = sorted.map((t, i) => {
+        const pct = t.played > 0 ? Math.round(t.points / (t.played * 3) * 100) : 0;
+        const color = pct >= 60 ? 'var(--accent-green)' : pct >= 40 ? 'var(--accent-yellow)' : 'var(--accent-red)';
+        return `<tr>
+            <td class="position-cell">${i + 1}</td>
+            <td class="team-cell"><span class="team-name">${t.name}</span></td>
+            <td class="stat-cell">${t.played}</td>
+            <td class="stat-cell">${t.points}</td>
+            <td class="stat-cell" style="min-width:120px">
+                <div style="display:flex;align-items:center;gap:8px">
+                    <div style="flex:1;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden">
+                        <div style="width:${pct}%;height:100%;background:${color};border-radius:3px"></div>
+                    </div>
+                    <span style="font-weight:700;color:${color};min-width:36px;text-align:right">${pct}%</span>
+                </div>
+            </td>
+        </tr>`;
+    }).join('');
+
+    return `<div class="chart-wrapper" style="grid-column:1/-1">
+        <h3 class="chart-title">Ranking de Aproveitamento</h3>
+        <div class="market-table-wrapper"><table class="standings-table">
+            <thead><tr><th>#</th><th>Time</th><th class="th-center">J</th><th class="th-center">P</th><th class="th-center">Aproveitamento</th></tr></thead>
+            <tbody>${rows}</tbody>
+        </table></div>
+    </div>`;
+}
+
+/**
+ * Renderiza heatmap de resultados (rodada × time).
+ */
+function renderHeatmap(standings, allMatches) {
+    if (!standings || standings.length === 0) return '';
+
+    const played = allMatches.filter(m =>
+        m.intHomeScore !== null && m.intHomeScore !== undefined && m.intHomeScore !== ''
+    );
+    const rounds = [...new Set(played.map(m => parseInt(m.intRound)))].sort((a, b) => a - b);
+    if (rounds.length === 0) return '';
+
+    // Build result map: team -> round -> {result, opponent, score}
+    const resultMap = {};
+    standings.forEach(t => { resultMap[t.name] = {}; });
+    played.forEach(m => {
+        const r = parseInt(m.intRound);
+        const hs = parseInt(m.intHomeScore) || 0;
+        const as_ = parseInt(m.intAwayScore) || 0;
+        const homeRes = hs > as_ ? 'V' : hs === as_ ? 'E' : 'D';
+        const awayRes = hs < as_ ? 'V' : hs === as_ ? 'E' : 'D';
+        if (resultMap[m.strHomeTeam]) {
+            resultMap[m.strHomeTeam][r] = { res: homeRes, opp: m.strAwayTeam, score: `${hs}-${as_}` };
+        }
+        if (resultMap[m.strAwayTeam]) {
+            resultMap[m.strAwayTeam][r] = { res: awayRes, opp: m.strHomeTeam, score: `${as_}-${hs}` };
+        }
+    });
+
+    let headerCells = rounds.map(r => `<th class="heatmap-th">${r}</th>`).join('');
+    let bodyRows = standings.map(t => {
+        let cells = rounds.map(r => {
+            const d = resultMap[t.name][r];
+            if (!d) return '<td class="heatmap-cell"></td>';
+            const cls = d.res === 'V' ? 'heatmap-win' : d.res === 'E' ? 'heatmap-draw' : 'heatmap-loss';
+            return `<td class="heatmap-cell ${cls}" title="${t.name} ${d.score} ${d.opp}">${d.res}</td>`;
+        }).join('');
+        return `<tr><td class="heatmap-team">${t.name}</td>${cells}</tr>`;
+    }).join('');
+
+    return `<div class="chart-wrapper" style="grid-column:1/-1">
+        <h3 class="chart-title">Mapa de Resultados</h3>
+        <div class="heatmap-wrapper"><table class="heatmap-table">
+            <thead><tr><th class="heatmap-team-th">Time</th>${headerCells}</tr></thead>
+            <tbody>${bodyRows}</tbody>
+        </table></div>
+    </div>`;
 }
 
 /** Renderiza tela de carregamento */
@@ -1302,6 +1488,7 @@ function render() {
     html += renderProximosJogos(appState.allMatches, appState.selectedTeam);
     html += '<h3 class="section-title">Classifica\u00E7\u00E3o</h3>';
     html += renderStandings(appState.standings, {}, selectedTeam);
+    html += renderResultadosRodada(appState.allMatches, appState.selectedRound);
     html += '</div>'; // tab-tabela
 
 
@@ -1310,6 +1497,8 @@ function render() {
     html += renderEstatisticasContent();
     const chartsRender = renderCharts(appState.standings);
     html += chartsRender.html;
+    html += `<div class="charts-grid charts-grid--wide">${renderRankingAproveitamento(appState.standings)}</div>`;
+    html += `<div class="charts-grid charts-grid--wide">${renderHeatmap(appState.standings, appState.allMatches)}</div>`;
     html += '</div>'; // tab-estatisticas
 
     // Tab: Mercado
@@ -1345,15 +1534,32 @@ function render() {
         render();
     });
 
-    // Filtro de turno
-    const turnoSelect = document.getElementById('turnoFilter');
-    if (turnoSelect) {
-        turnoSelect.addEventListener('change', e => {
-            appState.turno = e.target.value;
-            applyFilters();
+
+
+    // Seletor de rodada
+    const roundSelector = document.getElementById('roundSelector');
+    if (roundSelector) {
+        roundSelector.addEventListener('change', e => {
+            const round = parseInt(e.target.value);
+            const container = document.querySelector('.rodada-grid');
+            if (!container) return;
+            // Re-render só a seção de rodada
+            const matches = appState.allMatches.filter(m => parseInt(m.intRound) === round);
+            container.innerHTML = matches.map(m => {
+                const hs = m.intHomeScore !== null && m.intHomeScore !== '' ? parseInt(m.intHomeScore) : null;
+                const as_ = m.intAwayScore !== null && m.intAwayScore !== '' ? parseInt(m.intAwayScore) : null;
+                const played_ = hs !== null;
+                const scoreHtml = played_
+                    ? `<span class="rodada-score">${hs} \u2013 ${as_}</span>`
+                    : `<span class="rodada-date">${formatDateShort(m.dateEvent)}</span>`;
+                return `<div class="rodada-match">
+                    <div class="rodada-team rodada-team--home"><span>${m.strHomeTeam}</span><img src="${m.strHomeTeamBadge || ''}" class="team-logo" onerror="this.style.display='none'"></div>
+                    ${scoreHtml}
+                    <div class="rodada-team rodada-team--away"><img src="${m.strAwayTeamBadge || ''}" class="team-logo" onerror="this.style.display='none'"><span>${m.strAwayTeam}</span></div>
+                </div>`;
+            }).join('');
         });
     }
-
 
     // Click em time na tabela → aba Time
     document.querySelectorAll('.standings-table tbody tr').forEach(row => {
