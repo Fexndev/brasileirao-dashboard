@@ -36,7 +36,7 @@
 
     /* Zone colors — Brazilian identity */
     --zone-lib:  #2ea043;   /* Libertadores (1-4) */
-    --zone-pre-lib: #6fca80; /* Pré-Libertadores (5) */
+    --zone-pre-lib: #e68a2e; /* Pré-Libertadores (5) — laranja */
     --zone-sul:  #1f6feb;   /* Sudamericana (6-11) */
     --zone-rel:  #da3633;   /* Rebaixamento (17-20) */
 
@@ -451,7 +451,7 @@ body {
 
 .standings-table th {
     padding: 10px 8px;
-    text-align: left;
+    text-align: center;
     font-weight: 600;
     color: var(--text-muted);
     font-size: 10px;
@@ -464,6 +464,7 @@ body {
     padding: 9px 8px;
     border-bottom: 1px solid var(--border-light);
     color: var(--text-primary);
+    text-align: center;
 }
 
 .standings-table tbody tr {
@@ -511,7 +512,12 @@ body {
     align-items: center;
     gap: 8px;
     min-width: 120px;
+    text-align: left;
 }
+
+/* Coluna "Time" na standings — header e cells à esquerda */
+.standings-table th:nth-child(3),
+.standings-table td:nth-child(3) { text-align: left; }
 
 .team-name {
     font-weight: 500;
@@ -840,7 +846,7 @@ body {
 
 .market-table th {
     padding: 10px 10px;
-    text-align: left;
+    text-align: center;
     font-weight: 600;
     color: var(--text-muted);
     font-size: 10px;
@@ -862,7 +868,12 @@ body {
     padding: 8px 10px;
     border-bottom: 1px solid var(--border-light);
     color: var(--text-primary);
+    text-align: center;
 }
+
+/* Coluna de nome (Jogador) — alinhada à esquerda */
+.market-table td:nth-child(2),
+.market-table th:nth-child(2) { text-align: left; }
 
 .market-table tbody tr { transition: background-color 0.12s ease; }
 .market-table tbody tr:hover { background: var(--bg-hover); }
