@@ -35,9 +35,10 @@
     --accent-purple: #bc8cff;
 
     /* Zone colors — Brazilian identity */
-    --zone-lib:  #2ea043;   /* Libertadores */
-    --zone-sul:  #1f6feb;   /* Sudamericana */
-    --zone-rel:  #da3633;   /* Rebaixamento */
+    --zone-lib:  #2ea043;   /* Libertadores (1-4) */
+    --zone-pre-lib: #6fca80; /* Pré-Libertadores (5) */
+    --zone-sul:  #1f6feb;   /* Sudamericana (6-11) */
+    --zone-rel:  #da3633;   /* Rebaixamento (17-20) */
 
     /* Borders */
     --border:       #30363d;
@@ -478,9 +479,10 @@ body {
 .standings-table tbody tr.highlighted .team-name { color: var(--accent-green-2); font-weight: 700; }
 
 /* Zones — left gutter */
-.zone-libertadores  { border-left: 3px solid var(--zone-lib); }
-.zone-sudamericana  { border-left: 3px solid var(--zone-sul); }
-.zone-rebaixamento  { border-left: 3px solid var(--zone-rel); }
+.zone-libertadores      { border-left: 3px solid var(--zone-lib); }
+.zone-pre-libertadores  { border-left: 3px solid var(--zone-pre-lib); }
+.zone-sudamericana      { border-left: 3px solid var(--zone-sul); }
+.zone-rebaixamento      { border-left: 3px solid var(--zone-rel); }
 
 /* Zone row tints */
 .zone-libertadores td:first-child  { /* handled by border-left */ }
@@ -564,6 +566,60 @@ body {
 
 .zone-legend-item { display: flex; align-items: center; gap: 5px; }
 .zone-legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* Próximos jogos */
+.proximos-jogos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+.proximo-jogo-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.proximo-rodada {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.proximo-times {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.proximo-time {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.proximo-vs {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.proximo-data {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-align: center;
+}
 
 .standings-empty {
     padding: 48px 20px;
@@ -816,6 +872,7 @@ body {
     font-weight: 700;
     color: var(--accent-green-2);
     white-space: nowrap;
+    text-align: center;
 }
 
 .market-value-brl {
@@ -823,6 +880,7 @@ body {
     color: var(--accent-blue);
     white-space: nowrap;
     font-size: 11px;
+    text-align: center;
 }
 
 .market-position-badge {

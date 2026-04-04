@@ -294,7 +294,7 @@ function formatMarketValueBRL(v) {
 function renderHeader(latestRound, selectedTeam, selectedRound, lastUpdated) {
     const timestamp = lastUpdated
         ? `${formatDate(lastUpdated)} \u00E0s ${formatTime(lastUpdated)}`
-        : 'Sem dados \u2014 clique em \u21BB Atualizar Dados';
+        : 'Aguardando dados';
 
     return `
         <div class="header">
@@ -312,7 +312,6 @@ function renderHeader(latestRound, selectedTeam, selectedRound, lastUpdated) {
                         <option value="primeiro" ${appState.turno === 'primeiro' ? 'selected' : ''}>1\u00BA Turno (R1\u201319)</option>
                         <option value="segundo" ${appState.turno === 'segundo' ? 'selected' : ''}>2\u00BA Turno (R20\u201338)</option>
                     </select>
-                    <button class="btn-update" id="updateBtn">\u21BB Atualizar Dados</button>
                 </div>
             </div>
             <div class="header-timestamp">Atualizada em ${timestamp}</div>
@@ -327,11 +326,11 @@ function renderHeader(latestRound, selectedTeam, selectedRound, lastUpdated) {
 function renderKPIs(standings, allMatches) {
     if (!standings || standings.length === 0) {
         return `<div class="kpi-grid kpi-empty-wrapper">
-            <div class="kpi-empty">Nenhum dado carregado. Clique em <strong>\u21BB Atualizar Dados</strong> para baixar os dados do Brasileir\u00E3o.</div>
+            <div class="kpi-empty">Nenhum dado carregado. Os dados s\u00E3o atualizados automaticamente todos os dias.</div>
         </div>`;
     }
 
-    const finished   = allMatches.filter(m => m.strStatus === 'Match Finished').length;
+    const finished   = allMatches.filter(m => m.intHomeScore !== null && m.intHomeScore !== undefined && m.intHomeScore !== '').length;
     const totalGoals = allMatches.reduce((s, m) =>
         s + (parseInt(m.intHomeScore) || 0) + (parseInt(m.intAwayScore) || 0), 0);
     const avgGoals   = finished > 0 ? (totalGoals / finished).toFixed(2).replace('.', ',') : '0,0';
@@ -391,7 +390,7 @@ function renderKPIs(standings, allMatches) {
  */
 function renderStandings(standings, teamBadges, selectedTeam) {
     if (!standings || standings.length === 0) {
-        return `<div class="standings-wrapper"><div class="standings-empty">Sem dados. Clique em \u21BB Atualizar Dados.</div></div>`;
+        return `<div class="standings-wrapper"><div class="standings-empty">Sem dados dispon\u00EDveis.</div></div>`;
     }
 
     let html = `<div class="standings-wrapper"><table class="standings-table"><thead><tr>
@@ -399,10 +398,11 @@ function renderStandings(standings, teamBadges, selectedTeam) {
     </tr></thead><tbody>`;
 
     standings.forEach(team => {
-        // Zona de classificação (apenas classe CSS para borda esquerda)
+        // Zona de classificação 2026 (apenas classe CSS para borda esquerda)
         let zoneClass = '';
         if (team.position <= 4)       zoneClass = 'zone-libertadores';
-        else if (team.position <= 6)  zoneClass = 'zone-sudamericana';
+        else if (team.position === 5) zoneClass = 'zone-pre-libertadores';
+        else if (team.position <= 11) zoneClass = 'zone-sudamericana';
         else if (team.position >= 17) zoneClass = 'zone-rebaixamento';
 
         const highlighted = selectedTeam !== 'Todos os times' && team.name === selectedTeam
@@ -445,9 +445,10 @@ function renderStandings(standings, teamBadges, selectedTeam) {
 
     html += `</tbody></table>
         <div class="zone-legend">
-            <div class="zone-legend-item"><div class="zone-legend-dot" style="background:var(--accent-green)"></div><span>Libertadores (1\u20134)</span></div>
-            <div class="zone-legend-item"><div class="zone-legend-dot" style="background:var(--accent-blue)"></div><span>Sul-Americana (5\u20136)</span></div>
-            <div class="zone-legend-item"><div class="zone-legend-dot" style="background:var(--accent-red)"></div><span>Rebaixamento (17\u201320)</span></div>
+            <div class="zone-legend-item"><div class="zone-legend-dot" style="background:var(--zone-lib)"></div><span>Libertadores (1\u20134)</span></div>
+            <div class="zone-legend-item"><div class="zone-legend-dot" style="background:var(--zone-pre-lib)"></div><span>Pr\u00E9-Libertadores (5)</span></div>
+            <div class="zone-legend-item"><div class="zone-legend-dot" style="background:var(--zone-sul)"></div><span>Sul-Americana (6\u201311)</span></div>
+            <div class="zone-legend-item"><div class="zone-legend-dot" style="background:var(--zone-rel)"></div><span>Rebaixamento (17\u201320)</span></div>
         </div></div>`;
     return html;
 }
@@ -507,15 +508,12 @@ function renderEstatisticasContent() {
         const assisters = playerStats.filter(p => p.cat === 'assistsLeaders').sort((a,b) => b.assists - a.assists);
 
         const playerTable = (players, valueKey, valueLabel) => {
-            if (!players.length) return '<div style="color:var(--text-muted);font-size:12px;padding:8px">Sem dados. Clique em ↻ Atualizar Dados.</div>';
+            if (!players.length) return '<div style="color:var(--text-muted);font-size:12px;padding:8px">Sem dados dispon\u00EDveis.</div>';
             return `<div class="market-table-wrapper"><table class="market-table">
                 <thead><tr><th>#</th><th>Jogador</th><th class="th-center">J</th><th class="th-center">${valueLabel}</th></tr></thead>
                 <tbody>${players.slice(0,15).map((p,i) => `<tr>
                     <td class="market-rank">${i+1}</td>
-                    <td><div style="display:flex;align-items:center;gap:8px">
-                        <img src="${p.photo}" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover;background:var(--bg-hover)" onerror="this.style.display='none'">
-                        <span style="font-weight:500">${p.name}</span>
-                    </div></td>
+                    <td style="font-weight:500">${p.name}</td>
                     <td class="stat-cell">${p.matches}</td>
                     <td style="text-align:center;font-weight:700;color:var(--accent-green)">${p[valueKey]}</td>
                 </tr>`).join('')}</tbody>
@@ -702,7 +700,8 @@ function renderCharts(standings) {
         }).join('');
         let zone = '';
         if (team.position <= 4)       zone = 'zone-libertadores';
-        else if (team.position <= 6)  zone = 'zone-sudamericana';
+        else if (team.position === 5) zone = 'zone-pre-libertadores';
+        else if (team.position <= 11) zone = 'zone-sudamericana';
         else if (team.position >= 17) zone = 'zone-rebaixamento';
         formTableHtml += `<tr class="${zone}">
             <td class="position-cell">${team.position}</td>
@@ -802,20 +801,20 @@ function renderMarketValues() {
     html += `<div class="market-table-wrapper"><table class="market-table" id="marketTable"><thead><tr>
         <th>#</th>
         <th class="sort-th" data-col="name">Jogador <span class="sort-icon">↕</span></th>
-        <th class="sort-th" data-col="team">Time <span class="sort-icon">↕</span></th>
-        <th class="sort-th" data-col="position">Pos <span class="sort-icon">↕</span></th>
-        <th class="sort-th" data-col="age">Idade <span class="sort-icon">↕</span></th>
-        <th class="sort-th" data-col="value">Valor (EUR) <span class="sort-icon">↕</span></th>
-        <th>Valor (BRL)</th>
+        <th class="sort-th th-center" data-col="team">Time <span class="sort-icon">↕</span></th>
+        <th class="sort-th th-center" data-col="position">Pos <span class="sort-icon">↕</span></th>
+        <th class="sort-th th-center" data-col="age">Idade <span class="sort-icon">↕</span></th>
+        <th class="sort-th th-center" data-col="value">Valor (EUR) <span class="sort-icon">↕</span></th>
+        <th class="th-center">Valor (BRL)</th>
     </tr></thead><tbody>`;
 
     sorted.forEach((p, i) => {
         html += `<tr data-name="${p.name.toLowerCase()}" data-team="${p.team}" data-position="${p.position}">
             <td class="market-rank">${i + 1}</td>
             <td style="font-weight:500">${p.name}</td>
-            <td style="font-size:11px;color:var(--text-secondary)">${p.team}</td>
-            <td><span class="market-position-badge">${p.position}</span></td>
-            <td style="text-align:center">${p.age}</td>
+            <td class="stat-cell">${p.team}</td>
+            <td class="stat-cell"><span class="market-position-badge">${p.position}</span></td>
+            <td class="stat-cell">${p.age}</td>
             <td class="market-value-cell">${formatMarketValue(p.value)}</td>
             <td class="market-value-brl">${formatMarketValueBRL(p.value)}</td>
         </tr>`;
@@ -833,6 +832,53 @@ function renderMarketValues() {
         <div class="chart-wrapper"><h3 class="chart-title">Distribui\u00E7\u00E3o por Posi\u00E7\u00E3o</h3><div class="chart-container"><canvas id="positionValuesChart"></canvas></div></div>
     </div>`;
 
+    return html;
+}
+
+/**
+ * Renderiza seção de próximos jogos agendados.
+ */
+function renderProximosJogos(allMatches, selectedTeam) {
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+
+    let proximos = allMatches.filter(m =>
+        (m.intHomeScore === null || m.intHomeScore === undefined || m.intHomeScore === '')
+        && new Date(m.dateEvent + 'T23:59:59') >= hoje
+    );
+
+    if (selectedTeam !== 'Todos os times') {
+        proximos = proximos.filter(m =>
+            m.strHomeTeam === selectedTeam || m.strAwayTeam === selectedTeam
+        );
+    }
+
+    proximos.sort((a, b) => new Date(a.dateEvent) - new Date(b.dateEvent));
+    proximos = proximos.slice(0, 10);
+
+    if (proximos.length === 0) return '';
+
+    let html = '<h3 class="section-title">Pr\u00F3ximos Jogos</h3><div class="proximos-jogos">';
+    proximos.forEach(m => {
+        const rodada = m.intRound ? `R${m.intRound}` : '';
+        const data = formatDate(m.dateEvent);
+        html += `<div class="proximo-jogo-card">
+            <div class="proximo-rodada">${rodada}</div>
+            <div class="proximo-times">
+                <div class="proximo-time">
+                    <img src="${m.strHomeTeamBadge || ''}" alt="" class="team-logo" onerror="this.style.display='none'">
+                    <span>${m.strHomeTeam}</span>
+                </div>
+                <span class="proximo-vs">\u00D7</span>
+                <div class="proximo-time">
+                    <img src="${m.strAwayTeamBadge || ''}" alt="" class="team-logo" onerror="this.style.display='none'">
+                    <span>${m.strAwayTeam}</span>
+                </div>
+            </div>
+            <div class="proximo-data">${data}</div>
+        </div>`;
+    });
+    html += '</div>';
     return html;
 }
 
@@ -1032,6 +1078,7 @@ function render() {
     // Tab: Tabela (KPIs globais + classificação)
     html += `<div class="tab-content ${activeTab === 'tabela' ? 'active' : ''}" id="tab-tabela">`;
     html += renderKPIs(appState.standings, appState.allMatches);
+    html += renderProximosJogos(appState.allMatches, appState.selectedTeam);
     html += '<h3 class="section-title">Classifica\u00E7\u00E3o</h3>';
     html += renderStandings(appState.standings, {}, selectedTeam);
     html += '</div>'; // tab-tabela
@@ -1079,8 +1126,6 @@ function render() {
         });
     }
 
-    // Botão atualizar (aciona pipeline de coleta via SSE)
-    document.getElementById('updateBtn').addEventListener('click', startUpdate);
 
     // Troca de abas (sem re-render, apenas toggle de classes)
     document.querySelectorAll('.tab-btn').forEach(btn => {
