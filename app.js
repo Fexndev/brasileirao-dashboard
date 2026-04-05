@@ -169,35 +169,6 @@ function calculateStandings(matches) {
 }
 
 
-function getFilteredMatches() {
-    let matches = appState.allMatches;
-    if (appState.turno === 'primeiro') {
-        matches = matches.filter(m => parseInt(m.intRound) <= 19);
-    } else if (appState.turno === 'segundo') {
-        matches = matches.filter(m => parseInt(m.intRound) >= 20);
-    }
-    return matches;
-}
-
-function applyFilters() {
-    const matches = getFilteredMatches();
-    if (matches.length > 0) {
-        const { standings, teamBadges } = calculateStandings(matches);
-        standings.forEach(t => {
-            const prev = (appState.standings || []).find(s => s.name === t.name);
-            t.badge = teamBadges[t.name] || (prev && prev.badge) || '';
-        });
-        appState.standings = standings;
-        const rounds = [...new Set(matches.map(m => parseInt(m.intRound)))].sort((a, b) => a - b);
-        if (!rounds.includes(appState.selectedRound)) {
-            appState.selectedRound = rounds[rounds.length - 1];
-        }
-    } else {
-        appState.standings = [];
-    }
-    render();
-}
-
 function buildPointsProgression(matches) {
     const rounds = [...new Set(matches.map(m => parseInt(m.intRound)))].sort((a, b) => a - b);
     const teamNames = [...new Set(matches.flatMap(m => [m.strHomeTeam, m.strAwayTeam]))];
@@ -430,7 +401,7 @@ function renderStandings(standings, teamBadges, selectedTeam) {
     }
 
     let html = `<div class="standings-wrapper"><table class="standings-table"><thead><tr>
-        <th>#</th><th></th><th>Time</th><th class="th-center">P</th><th class="th-center">J</th><th class="th-center">V</th><th class="th-center">E</th><th class="th-center">D</th><th class="th-center">GP</th><th class="th-center">GC</th><th class="th-center">SG</th><th class="th-center">\u00DAlt. 5</th><th class="th-center">\u00DAltimo</th>
+        <th>#</th><th></th><th>Time</th><th class="th-center">P</th><th class="th-center">J</th><th class="th-center hide-mobile">V</th><th class="th-center hide-mobile">E</th><th class="th-center hide-mobile">D</th><th class="th-center hide-mobile">GP</th><th class="th-center hide-mobile">GC</th><th class="th-center">SG</th><th class="th-center">\u00DAlt. 5</th><th class="th-center hide-mobile">\u00DAltimo</th>
     </tr></thead><tbody>`;
 
     standings.forEach(team => {
@@ -468,14 +439,14 @@ function renderStandings(standings, teamBadges, selectedTeam) {
             <td class="team-cell"><span class="team-name">${team.name}</span></td>
             <td class="points-cell">${team.points}</td>
             <td class="stat-cell">${team.played}</td>
-            <td class="stat-cell">${team.wins}</td>
-            <td class="stat-cell">${team.draws}</td>
-            <td class="stat-cell">${team.losses}</td>
-            <td class="stat-cell">${team.goalsFor}</td>
-            <td class="stat-cell">${team.goalsAgainst}</td>
+            <td class="stat-cell hide-mobile">${team.wins}</td>
+            <td class="stat-cell hide-mobile">${team.draws}</td>
+            <td class="stat-cell hide-mobile">${team.losses}</td>
+            <td class="stat-cell hide-mobile">${team.goalsFor}</td>
+            <td class="stat-cell hide-mobile">${team.goalsAgainst}</td>
             <td class="goal-diff ${gdClass}">${gd > 0 ? '+' : ''}${gd}</td>
             <td class="stat-cell">${formHtml}</td>
-            <td class="last-match-date">${lastDate}</td>
+            <td class="last-match-date hide-mobile">${lastDate}</td>
         </tr>`;
     });
 
@@ -1058,7 +1029,7 @@ function initTimeChart() {
             },
             options: {
                 responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { labels: { color: '#8b949e', font: { family: "'Inter'", size: 11 } } } },
+                plugins: { legend: { labels: { color: '#8b949e', font: { family: "'Inter'", size: 11 } } }, tooltip: TOOLTIP_STYLE },
                 scales: {
                     x: { grid: { display: false }, ticks: { color: '#8b949e', font: { size: 10 } } },
                     y: { grid: { color: '#21262d' }, ticks: { color: '#8b949e', font: { size: 10 } }, beginAtZero: true }
@@ -1305,6 +1276,74 @@ function renderHeatmap(standings, allMatches) {
     </div>`;
 }
 
+/**
+ * Renderiza seção comparativo histórico (lazy load).
+ */
+function renderHistorico() {
+    const hist = window.HISTORICO_DATA;
+    if (!hist) {
+        // Trigger lazy load
+        if (!window._loadingHistorico) {
+            window._loadingHistorico = true;
+            fetch('data/historico.json')
+                .then(r => r.ok ? r.json() : null)
+                .then(d => {
+                    window.HISTORICO_DATA = d;
+                    window._loadingHistorico = false;
+                    // Re-render se estiver na aba
+                    if (appState.activeTab === 'estatisticas') render();
+                })
+                .catch(() => { window._loadingHistorico = false; });
+        }
+        return `<div class="chart-wrapper" style="grid-column:1/-1">
+            <h3 class="chart-title">Comparativo Hist\u00F3rico</h3>
+            <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px">Carregando dados hist\u00F3ricos...</div>
+        </div>`;
+    }
+
+    const currentRound = appState.selectedRound || 1;
+    const seasons = hist.seasons || [];
+    const lastSeason = seasons[seasons.length - 1];
+    const prevStandings = hist.standings_by_season[lastSeason] || [];
+    const prevLeader = prevStandings[0];
+
+    const currentLeader = (appState.standings || [])[0];
+
+    // Top 5 artilheiros all-time
+    const topScorers = (hist.scorers_all_time || []).slice(0, 5);
+
+    let html = `<div class="chart-wrapper" style="grid-column:1/-1">
+        <h3 class="chart-title">Comparativo Hist\u00F3rico</h3>
+        <div class="kpi-grid" style="margin-bottom:16px">
+            <div class="kpi-card">
+                <div class="kpi-label">L\u00EDder atual (R${currentRound})</div>
+                <div class="kpi-value small">${currentLeader ? currentLeader.name : '-'}</div>
+                <div class="kpi-detail">${currentLeader ? currentLeader.points + ' pts' : ''}</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Campe\u00E3o ${lastSeason}</div>
+                <div class="kpi-value small">${prevLeader ? prevLeader.team : '-'}</div>
+                <div class="kpi-detail">${prevLeader ? prevLeader.points + ' pts em 38 rodadas' : ''}</div>
+            </div>
+        </div>`;
+
+    if (topScorers.length > 0) {
+        html += `<h4 style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Artilheiros All-Time do Brasileir\u00E3o</h4>
+        <div class="market-table-wrapper"><table class="market-table">
+            <thead><tr><th>#</th><th>Jogador</th><th class="th-center">Clube</th><th class="th-center">Gols</th></tr></thead>
+            <tbody>${topScorers.map((s, i) => `<tr>
+                <td class="market-rank">${i + 1}</td>
+                <td style="font-weight:500">${s.player}</td>
+                <td class="stat-cell">${s.club}</td>
+                <td style="text-align:center;font-weight:700;color:var(--accent-green)">${s.goals}</td>
+            </tr>`).join('')}</tbody>
+        </table></div>`;
+    }
+
+    html += '</div>';
+    return html;
+}
+
 /** Renderiza tela de carregamento */
 function renderLoading() {
     return '<div class="loading-container"><div class="spinner"></div><div class="loading-text">Carregando dados do Brasileir\u00E3o...</div></div>';
@@ -1332,6 +1371,21 @@ function renderError(message) {
  * Configuração base compartilhada por todos os gráficos Chart.js.
  * @type {Object}
  */
+/** Tooltip customizado compartilhado por todos os gráficos */
+const TOOLTIP_STYLE = {
+    backgroundColor: '#161b22',
+    titleColor: '#e6edf3',
+    bodyColor: '#8b949e',
+    borderColor: '#30363d',
+    borderWidth: 1,
+    padding: 10,
+    cornerRadius: 6,
+    titleFont: { family: "'Inter', sans-serif", weight: '600', size: 12 },
+    bodyFont: { family: "'Inter', sans-serif", size: 11 },
+    displayColors: true,
+    boxPadding: 4,
+};
+
 const BASE_CHART_OPTIONS = {
     indexAxis: 'y',
     responsive: true,
@@ -1342,7 +1396,8 @@ const BASE_CHART_OPTIONS = {
                 font: { family: "'Inter', sans-serif", size: 11 },
                 color: '#8b949e'
             }
-        }
+        },
+        tooltip: TOOLTIP_STYLE,
     },
     scales: {
         x: {
@@ -1517,6 +1572,7 @@ function render() {
     html += chartsRender.html;
     html += `<div class="charts-grid charts-grid--wide">${renderRankingAproveitamento(appState.standings)}</div>`;
     html += `<div class="charts-grid charts-grid--wide">${renderHeatmap(appState.standings, appState.allMatches)}</div>`;
+    html += `<div class="charts-grid charts-grid--wide">${renderHistorico()}</div>`;
     html += '</div>'; // tab-estatisticas
 
     // Tab: Mercado
@@ -1716,7 +1772,7 @@ function initEstatisticasCharts(chartsRender) {
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { labels: { font: { family: "'Inter',sans-serif", size: 11 }, color: '#8b949e' } } },
+                    plugins: { legend: { labels: { font: { family: "'Inter',sans-serif", size: 11 }, color: '#8b949e' } }, tooltip: TOOLTIP_STYLE },
                     scales: {
                         x: { grid: { color: '#21262d' }, ticks: { color: '#8b949e', font: { size: 10 } } },
                         y: { grid: { color: '#21262d' }, ticks: { color: '#8b949e', font: { size: 10 } }, beginAtZero: true }
@@ -1761,7 +1817,7 @@ function initEstatisticasCharts(chartsRender) {
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { font: { family: "'Inter',sans-serif", size: 11 }, color: '#8b949e' } } }
+                    plugins: { legend: { position: 'bottom', labels: { font: { family: "'Inter',sans-serif", size: 11 }, color: '#8b949e' } }, tooltip: TOOLTIP_STYLE }
                 }
             }));
         }
@@ -1782,7 +1838,7 @@ function initEstatisticasCharts(chartsRender) {
                 },
                 options: {
                     ...BASE_CHART_OPTIONS,
-                    plugins: { legend: { labels: { font: { family: "'Inter',sans-serif", size: 11 }, color: '#8b949e' } } },
+                    plugins: { legend: { labels: { font: { family: "'Inter',sans-serif", size: 11 }, color: '#8b949e' } }, tooltip: TOOLTIP_STYLE },
                 }
             }));
         }

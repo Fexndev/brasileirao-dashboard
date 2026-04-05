@@ -13,6 +13,10 @@
     <!-- Chart.js para gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1"></script>
 
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2ea043">
+
     <!-- Estilos do dashboard -->
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -22,5 +26,6 @@
 
     <!-- Lógica principal do dashboard -->
     <script src="app.js"></script>
+    <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');</script>
 </body>
 </html>
