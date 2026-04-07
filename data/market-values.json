@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-04-06",
+  "last_updated": "2026-04-07",
   "source": "Transfermarkt via dcaribou/transfermarkt-datasets",
   "eur_brl_rate": 6.2,
   "players": [
@@ -1533,7 +1533,7 @@
       "name": "Marquinhos",
       "team": "Cruzeiro",
       "position": "Ponta Dir.",
-      "age": 22,
+      "age": 23,
       "value": 3000000
     },
     {
@@ -2716,7 +2716,7 @@
       "name": "Matheus Alexandre",
       "team": "Sport Recife",
       "position": "Lateral Dir.",
-      "age": 26,
+      "age": 27,
       "value": 1200000
     },
     {
