@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-04-08",
+  "last_updated": "2026-04-09",
   "source": "Transfermarkt via dcaribou/transfermarkt-datasets",
   "eur_brl_rate": 6.2,
   "players": [
@@ -812,7 +812,7 @@
       "name": "Fabinho",
       "team": "Red Bull Bragantino",
       "position": "Vol. Defensivo",
-      "age": 23,
+      "age": 24,
       "value": 5000000
     },
     {
@@ -1603,7 +1603,7 @@
       "name": "Jemmes",
       "team": "Fluminense",
       "position": "Zagueiro",
-      "age": 25,
+      "age": 26,
       "value": 3000000
     },
     {
