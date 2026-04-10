@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-04-09",
+  "last_updated": "2026-04-10",
   "source": "Transfermarkt via dcaribou/transfermarkt-datasets",
   "eur_brl_rate": 6.2,
   "players": [
@@ -2625,7 +2625,7 @@
       "name": "Everton Ribeiro",
       "team": "Bahia",
       "position": "Meia Atac.",
-      "age": 36,
+      "age": 37,
       "value": 1200000
     },
     {
@@ -3598,7 +3598,7 @@
       "name": "Arthur Dias",
       "team": "Athletico Paranaense",
       "position": "Zagueiro",
-      "age": 18,
+      "age": 19,
       "value": 600000
     },
     {
@@ -4179,7 +4179,7 @@
       "name": "Everton",
       "team": "Chapecoense",
       "position": "Lateral Dir.",
-      "age": 30,
+      "age": 31,
       "value": 300000
     },
     {
@@ -4543,7 +4543,7 @@
       "name": "Kawan",
       "team": "Botafogo",
       "position": "Zagueiro",
-      "age": 22,
+      "age": 23,
       "value": 100000
     },
     {
