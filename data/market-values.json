@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-04-11",
+  "last_updated": "2026-04-12",
   "source": "Transfermarkt via dcaribou/transfermarkt-datasets",
   "eur_brl_rate": 6.2,
   "players": [
@@ -3563,7 +3563,7 @@
       "name": "Luiz Gustavo",
       "team": "Bahia",
       "position": "Zagueiro",
-      "age": 19,
+      "age": 20,
       "value": 600000
     },
     {
