@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-04-13",
+  "last_updated": "2026-04-14",
   "source": "Transfermarkt via dcaribou/transfermarkt-datasets",
   "eur_brl_rate": 6.2,
   "players": [
@@ -588,7 +588,7 @@
       "name": "Guilherme Arana",
       "team": "Fluminense",
       "position": "Lateral Esq.",
-      "age": 28,
+      "age": 29,
       "value": 7000000
     },
     {
@@ -1043,7 +1043,7 @@
       "name": "Nicolás Acevedo",
       "team": "Bahia",
       "position": "Vol. Defensivo",
-      "age": 26,
+      "age": 27,
       "value": 4000000
     },
     {
@@ -2576,7 +2576,7 @@
       "name": "Carlos Alberto",
       "team": "Botafogo",
       "position": "Ponta Dir.",
-      "age": 23,
+      "age": 24,
       "value": 1300000
     },
     {
@@ -4396,7 +4396,7 @@
       "name": "Denis",
       "team": "Sport Recife",
       "position": "Goleiro",
-      "age": 38,
+      "age": 39,
       "value": 200000
     },
     {
