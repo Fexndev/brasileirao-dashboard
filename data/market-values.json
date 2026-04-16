@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-04-15",
+  "last_updated": "2026-04-16",
   "source": "Transfermarkt via dcaribou/transfermarkt-datasets",
   "eur_brl_rate": 6.2,
   "players": [
@@ -1715,7 +1715,7 @@
       "name": "José Herrera",
       "team": "Red Bull Bragantino",
       "position": "Ponta Dir.",
-      "age": 22,
+      "age": 23,
       "value": 2500000
     },
     {
@@ -3297,7 +3297,7 @@
       "name": "Renzo López",
       "team": "Vitória",
       "position": "Centroavante",
-      "age": 31,
+      "age": 32,
       "value": 800000
     },
     {
@@ -3990,7 +3990,7 @@
       "name": "Marllon",
       "team": "Ceará",
       "position": "Zagueiro",
-      "age": 33,
+      "age": 34,
       "value": 400000
     },
     {
