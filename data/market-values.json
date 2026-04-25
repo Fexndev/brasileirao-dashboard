@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-04-24",
+  "last_updated": "2026-04-25",
   "source": "Transfermarkt via dcaribou/transfermarkt-datasets",
   "eur_brl_rate": 6.2,
   "players": [
@@ -434,7 +434,7 @@
       "name": "Arthur Cabral",
       "team": "Botafogo",
       "position": "Centroavante",
-      "age": 27,
+      "age": 28,
       "value": 8000000
     },
     {
@@ -826,7 +826,7 @@
       "name": "Miguelito",
       "team": "Santos",
       "position": "Meia Atac.",
-      "age": 21,
+      "age": 22,
       "value": 5000000
     },
     {
@@ -2289,7 +2289,7 @@
       "name": "Cacá",
       "team": "Vitória",
       "position": "Zagueiro",
-      "age": 26,
+      "age": 27,
       "value": 1500000
     },
     {
