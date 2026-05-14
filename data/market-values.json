@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-05-13",
+  "last_updated": "2026-05-14",
   "source": "Transfermarkt via dcaribou/transfermarkt-datasets",
   "eur_brl_rate": 6.2,
   "players": [
@@ -693,7 +693,7 @@
       "name": "Alan Minda",
       "team": "Atlético-MG",
       "position": "Ponta Dir.",
-      "age": 22,
+      "age": 23,
       "value": 3000000
     },
     {
@@ -1729,7 +1729,7 @@
       "name": "Ryan Carlos",
       "team": "Bahia",
       "position": "Lateral Esq.",
-      "age": 23,
+      "age": 24,
       "value": 400000
     },
     {
