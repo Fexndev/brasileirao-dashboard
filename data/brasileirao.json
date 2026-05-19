@@ -1,6 +1,6 @@
 {
   "season": 2026,
-  "last_updated": "2026-05-18T13:00:27Z",
+  "last_updated": "2026-05-19T12:34:14Z",
   "latest_round": 16,
   "source": "ESPN",
   "matches": [
@@ -5388,7 +5388,7 @@
     },
     {
       "id": "236324",
-      "name": "Breno ",
+      "name": "Breno",
       "photo": "https://a.espncdn.com/i/headshots/soccer/players/full/236324.png",
       "cat": "goalsLeaders",
       "value": 7,
@@ -5548,7 +5548,7 @@
     },
     {
       "id": "196849",
-      "name": "Edenilson ",
+      "name": "Edenilson",
       "photo": "https://a.espncdn.com/i/headshots/soccer/players/full/196849.png",
       "cat": "goalsLeaders",
       "value": 4,
@@ -5668,7 +5668,7 @@
     },
     {
       "id": "198360",
-      "name": "Willian José ",
+      "name": "Willian José",
       "photo": "https://a.espncdn.com/i/headshots/soccer/players/full/198360.png",
       "cat": "goalsLeaders",
       "value": 3,
@@ -5708,7 +5708,7 @@
     },
     {
       "id": "167845",
-      "name": "Everaldo ",
+      "name": "Everaldo",
       "photo": "https://a.espncdn.com/i/headshots/soccer/players/full/167845.png",
       "cat": "goalsLeaders",
       "value": 3,
@@ -5978,7 +5978,7 @@
     },
     {
       "id": "256044",
-      "name": "Erick ",
+      "name": "Erick",
       "photo": "https://a.espncdn.com/i/headshots/soccer/players/full/256044.png",
       "cat": "assistsLeaders",
       "value": 3,
@@ -6118,7 +6118,7 @@
     },
     {
       "id": "198580",
-      "name": "Jean ",
+      "name": "Jean",
       "photo": "https://a.espncdn.com/i/headshots/soccer/players/full/198580.png",
       "cat": "assistsLeaders",
       "value": 2,
@@ -6148,7 +6148,7 @@
     },
     {
       "id": "269910",
-      "name": "Jean Lucas ",
+      "name": "Jean Lucas",
       "photo": "https://a.espncdn.com/i/headshots/soccer/players/full/269910.png",
       "cat": "assistsLeaders",
       "value": 2,
@@ -6218,7 +6218,7 @@
     },
     {
       "id": "196849",
-      "name": "Edenilson ",
+      "name": "Edenilson",
       "photo": "https://a.espncdn.com/i/headshots/soccer/players/full/196849.png",
       "cat": "assistsLeaders",
       "value": 2,
