@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-05-19",
+  "last_updated": "2026-05-20",
   "source": "Transfermarkt via dcaribou/transfermarkt-datasets",
   "eur_brl_rate": 6.2,
   "players": [
@@ -56,7 +56,7 @@
       "name": "Gerson",
       "team": "Cruzeiro",
       "position": "Meia Central",
-      "age": 28,
+      "age": 29,
       "value": 20000000
     },
     {
@@ -1106,7 +1106,7 @@
       "name": "Marlon",
       "team": "Grêmio",
       "position": "Lateral Esq.",
-      "age": 28,
+      "age": 29,
       "value": 4000000
     },
     {
@@ -3661,7 +3661,7 @@
       "name": "Vitor Hugo",
       "team": "Atlético-MG",
       "position": "Zagueiro",
-      "age": 34,
+      "age": 35,
       "value": 600000
     },
     {

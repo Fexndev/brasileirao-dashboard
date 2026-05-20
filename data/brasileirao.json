@@ -1,6 +1,6 @@
 {
   "season": 2026,
-  "last_updated": "2026-05-19T12:34:14Z",
+  "last_updated": "2026-05-20T12:15:58Z",
   "latest_round": 16,
   "source": "ESPN",
   "matches": [
@@ -5438,7 +5438,7 @@
     },
     {
       "id": "287788",
-      "name": "Christian",
+      "name": "Christian ",
       "photo": "https://a.espncdn.com/i/headshots/soccer/players/full/287788.png",
       "cat": "goalsLeaders",
       "value": 5,
@@ -5448,7 +5448,7 @@
     },
     {
       "id": "190483",
-      "name": "Luciano",
+      "name": "Luciano ",
       "photo": "https://a.espncdn.com/i/headshots/soccer/players/full/190483.png",
       "cat": "goalsLeaders",
       "value": 5,
@@ -5568,7 +5568,7 @@
     },
     {
       "id": "296573",
-      "name": "Ferreira",
+      "name": "Ferreira ",
       "photo": "https://a.espncdn.com/i/headshots/soccer/players/full/296573.png",
       "cat": "goalsLeaders",
       "value": 4,
@@ -5658,7 +5658,7 @@
     },
     {
       "id": "336622",
-      "name": "Hércules",
+      "name": "Hércules ",
       "photo": "https://a.espncdn.com/i/headshots/soccer/players/full/336622.png",
       "cat": "goalsLeaders",
       "value": 3,
@@ -5768,7 +5768,7 @@
     },
     {
       "id": "280978",
-      "name": "Kaio Jorge",
+      "name": "Kaio Jorge ",
       "photo": "https://a.espncdn.com/i/headshots/soccer/players/full/280978.png",
       "cat": "goalsLeaders",
       "value": 3,
@@ -5878,7 +5878,7 @@
     },
     {
       "id": "250388",
-      "name": "Alesson",
+      "name": "Alesson ",
       "photo": "https://a.espncdn.com/i/headshots/soccer/players/full/250388.png",
       "cat": "assistsLeaders",
       "value": 4,
@@ -6048,7 +6048,7 @@
     },
     {
       "id": "199065",
-      "name": "Wendell",
+      "name": "Wendell ",
       "photo": "https://a.espncdn.com/i/headshots/soccer/players/full/199065.png",
       "cat": "assistsLeaders",
       "value": 3,
@@ -6098,7 +6098,7 @@
     },
     {
       "id": "287788",
-      "name": "Christian",
+      "name": "Christian ",
       "photo": "https://a.espncdn.com/i/headshots/soccer/players/full/287788.png",
       "cat": "assistsLeaders",
       "value": 2,
@@ -6138,7 +6138,7 @@
     },
     {
       "id": "317233",
-      "name": "Kaiki",
+      "name": "Kaiki ",
       "photo": "https://a.espncdn.com/i/headshots/soccer/players/full/317233.png",
       "cat": "assistsLeaders",
       "value": 2,
@@ -6318,7 +6318,7 @@
     },
     {
       "id": "271557",
-      "name": "Guga",
+      "name": "Guga ",
       "photo": "https://a.espncdn.com/i/headshots/soccer/players/full/271557.png",
       "cat": "assistsLeaders",
       "value": 2,
